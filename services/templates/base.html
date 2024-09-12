@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Under the Sun - Ректификация и Астрология</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@2.15.0/dist/full.css" rel="stylesheet">
+    <link rel="icon" href="https://taplink.st/a/8/1/d/d/1db799.jpg?123"/>
+    <link rel="apple-touch-icon" sizes="300x300" href="https://taplink.st/a/8/1/d/d/1db799.jpg?123">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script>
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute("data-theme");
+            const newTheme = currentTheme === "light" ? "dark" : "light";
+            html.setAttribute("data-theme", newTheme);
+        }
+    </script>
+</head>
+<body>
+<!-- Navbar -->
+<nav class="navbar bg-base-100 shadow-md">
+    <div class="container mx-auto flex justify-between items-center py-4">
+        <!-- Бренд -->
+        <a href="{% url 'services:index' %}" class="text-2xl font-bold text-green-800">Under the Sun</a>
+
+        <!-- Навигационные ссылки -->
+        <div class="flex-none">
+            <ul class="menu menu-horizontal p-0 space-x-4 text-lg">
+                <li><a href="{% url 'services:index' %}">Главная</a></li>
+                <li><a href="{% url 'services:catalog' %}">Каталог услуг</a></li>
+                {#                    <li><a href="{% url 'services:blog' %}">Блог/Новости</a></li>#}
+            </ul>
+        </div>
+        <!-- Иконка корзины -->
+        <div class="relative">
+            <a href="{% url 'services:cart_detail' %}" class="text-gray-600 relative">
+                <!-- Иконка корзины Font Awesome -->
+                <i class="fas fa-shopping-cart fa-lg"></i>
+                <!-- Индикатор количества товаров -->
+                {% if cart|length > 0 %}
+                    <span class="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 rounded-full bg-red-500 text-white text-xs w-4 h-4 flex items-center justify-center">
+                        {{ cart|length }}
+                    </span>
+                {% endif %}
+            </a>
+        </div>
+    </div>
+</nav>
+
+<!-- Контент страницы -->
+<div class="container mx-auto py-6 px-4">
+    {% block content %}
+    {% endblock %}
+</div>
+
+{#    <footer class="footer items-center p-4 bg-neutral text-neutral-content">#}
+{#        <div class="items-center grid-flow-col">#}
+{#            <p>&copy; 2024 Екатерина Прошина. Все права защищены.</p>#}
+{#        </div>#}
+{#    </footer>#}
+</body>
+</html>

@@ -1,0 +1,4 @@
+django
+stripe  # или pip install yookassa
+pillow
+django-crispy-forms  # если понадобится

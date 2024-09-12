@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto py-6 px-4">
+    <h1 class="text-3xl font-bold text-green-800 mb-6">Ваша корзина</h1>
+
+    {% if cart %}
+    <table class="table-auto w-full">
+        <thead>
+            <tr>
+                <th class="px-4 py-2">Услуга</th>
+                <th class="px-4 py-2">Цена</th>
+                <th class="px-4 py-2">Количество</th>
+                <th class="px-4 py-2">Итого</th>
+                <th class="px-4 py-2">Действие</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in cart %}
+            <tr>
+                <td class="border px-4 py-2">{{ item.service.title }}</td>
+                <td class="border px-4 py-2">{{ item.price }} ₽</td>
+                <td class="border px-4 py-2">{{ item.quantity }}</td>
+                <td class="border px-4 py-2">{{ item.total_price }} ₽</td>
+                <td class="border px-4 py-2">
+                    <a href="{% url 'services:cart_remove' item.service.id %}" class="text-red-600">Удалить</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <p class="text-right mt-4">Общая сумма: {{ cart.get_total_price }} ₽</p>
+
+    <hr class="my-6">
+
+    <h2 class="text-2xl font-bold">Данные покупателя</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary mt-4">Оформить заказ</button>
+    </form>
+
+    {% else %}
+    <p>Ваша корзина пуста.</p>
+    {% endif %}
+</div>
+{% endblock %}
