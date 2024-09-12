@@ -5,41 +5,64 @@
     <h1 class="text-3xl font-bold text-green-800 mb-6">Ваша корзина</h1>
 
     {% if cart %}
-    <table class="table-auto w-full">
+    <table class="table w-full mb-6 table-zebra">
         <thead>
             <tr>
-                <th class="px-4 py-2">Услуга</th>
-                <th class="px-4 py-2">Цена</th>
-                <th class="px-4 py-2">Количество</th>
-                <th class="px-4 py-2">Итого</th>
-                <th class="px-4 py-2">Действие</th>
+                <th>Услуга</th>
+                <th>Цена</th>
+                <th>Количество</th>
+                <th>Итого</th>
+                <th>Действие</th>
             </tr>
         </thead>
         <tbody>
             {% for item in cart %}
             <tr>
-                <td class="border px-4 py-2">{{ item.service.title }}</td>
-                <td class="border px-4 py-2">{{ item.price }} ₽</td>
-                <td class="border px-4 py-2">{{ item.quantity }}</td>
-                <td class="border px-4 py-2">{{ item.total_price }} ₽</td>
-                <td class="border px-4 py-2">
-                    <a href="{% url 'services:cart_remove' item.service.id %}" class="text-red-600">Удалить</a>
+                <td>{{ item.service.title }}</td>
+                <td>{{ item.price }} ₽</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.total_price }} ₽</td>
+                <td>
+                    <a href="{% url 'services:cart_remove' item.service.id %}" class="btn btn-error">Удалить</a>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 
-    <p class="text-right mt-4">Общая сумма: {{ cart.get_total_price }} ₽</p>
+    <p class="text-right text-lg font-semibold">Общая сумма: {{ cart.get_total_price }} ₽</p>
 
     <hr class="my-6">
 
-    <h2 class="text-2xl font-bold">Данные покупателя</h2>
+    <h2 class="text-2xl font-bold mb-4">Данные покупателя</h2>
 
-    <form method="post">
+    <form method="post" class="space-y-4">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary mt-4">Оформить заказ</button>
+        <div class="form-control">
+            <label class="label">
+                <span class="label-text">ФИО</span>
+            </label>
+            {{ form.customer_name }}
+        </div>
+        <div class="form-control">
+            <label class="label">
+                <span class="label-text">Email</span>
+            </label>
+            {{ form.customer_email }}
+        </div>
+        <div class="form-control">
+            <label class="label">
+                <span class="label-text">Ник telegram</span>
+            </label>
+            {{ form.telegram_username }}
+        </div>
+        <div class="form-control">
+            <label class="label">
+                <span class="label-text">Дополнительная информация</span>
+            </label>
+            {{ form.additional_info }}
+        </div>
+        <button type="submit" class="btn btn-primary w-full mt-4">Оформить заказ</button>
     </form>
 
     {% else %}
