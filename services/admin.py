@@ -46,4 +46,4 @@ class PostAdmin(admin.ModelAdmin):
     search_fields = ('title', 'content')
     date_hierarchy = 'published_date'
     ordering = ('-published_date',)
-    filter_horizontal = ('tags',)
+    # filter_horizontal = ('tags',)
