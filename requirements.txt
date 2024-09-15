@@ -5,3 +5,4 @@ requests
 django-tinymce
 django-taggit
 django-ckeditor
+tzdata
