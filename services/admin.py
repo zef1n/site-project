@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 
-from .models import Service, Order
+from .models import Service, Order, Post
+
 
 # Регистрация модели Service
 @admin.register(Service)
@@ -16,6 +17,7 @@ class ServiceAdmin(admin.ModelAdmin):
         if obj.image:
             return mark_safe(f'<img src="{obj.image.url}" width="50" height="50" />')
         return "-"
+
     display_image.short_description = 'Изображение'
 
 
@@ -32,3 +34,16 @@ class OrderAdmin(admin.ModelAdmin):
     @admin.action(description='Отметить выбранные заказы как оплаченные')
     def mark_as_paid(self, request, queryset):
         queryset.update(paid=True)
+
+
+from django.contrib import admin
+from .models import Post
+
+@admin.register(Post)
+class PostAdmin(admin.ModelAdmin):
+    list_display = ('title', 'published_date', 'author')
+    prepopulated_fields = {'slug': ('title',)}
+    search_fields = ('title', 'content')
+    date_hierarchy = 'published_date'
+    ordering = ('-published_date',)
+    filter_horizontal = ('tags',)

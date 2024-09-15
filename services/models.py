@@ -1,6 +1,9 @@
+from django.contrib.auth.models import User
+from tinymce.models import HTMLField
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
+from taggit.managers import TaggableManager
 
 
 # Модель для описания услуг
@@ -16,47 +19,61 @@ class Service(models.Model):
         return self.title
 
 
-# Модель для хранения заказов клиентов
-from django.db import models
-from django.contrib.auth.models import User
-
-
-
 class Order(models.Model):
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,
-                             blank=True)  # Связь с пользователем (если есть)
-    service = models.ForeignKey(Service, on_delete=models.CASCADE)  # Услуга, которую заказывают
+    SOCIAL_NETWORK_CHOICES = [
+        ('telegram', 'Telegram'),
+        ('whatsapp', 'WhatsApp'),
+        ('viber', 'Viber'),
+        ('vk', 'ВКонтакте'),
+        ('instagram', 'Instagram'),
+        ('facebook', 'Facebook'),
+        ('other', 'Другое'),
+    ]
+
     customer_name = models.CharField(max_length=255)  # Имя клиента
     customer_email = models.EmailField()  # Email клиента
-    telegram_username = models.CharField(max_length=255, blank=True)  # Telegram ник клиента
-    additional_info = models.TextField(blank=True)  # Дополнительная информация
-    created_at = models.DateTimeField(auto_now_add=True)  # Дата создания заказа
+    phone_number = models.CharField(max_length=20)  # Номер телефона
+    preferred_network = models.CharField(max_length=20, choices=SOCIAL_NETWORK_CHOICES, default='telegram')  # Соцсеть
+    additional_info = models.TextField(null=True, blank=True)  # Дополнительная информация от клиента
+    service = models.ForeignKey('Service', on_delete=models.CASCADE)  # Выбранная услуга
+    created_at = models.DateTimeField(default=timezone.now)  # Дата заказа
     paid = models.BooleanField(default=False)  # Статус оплаты
 
     def __str__(self):
-        return f"Order {self.id} by {self.customer_name}"
+        return f"Order by {self.customer_name} for {self.service.title}"
 
 
-class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    bio = models.TextField(max_length=500, blank=True)  # Краткая информация о пользователе
-    location = models.CharField(max_length=100, blank=True)  # Местоположение пользователя
-    birth_date = models.DateField(null=True, blank=True)  # Дата рождения
+class Post(models.Model):
+    title = models.CharField(max_length=200)
+    slug = models.SlugField(max_length=200, unique=True)
+    image = models.ImageField(upload_to='blog_images/', null=True, blank=True)
+    author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    published_date = models.DateTimeField(default=timezone.now)
+    tags = TaggableManager()  # Добавили теги
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    content = HTMLField()
 
-    def __str__(self):
-        return self.user.username
-
-
-from django.db import models
-from django.contrib.auth.models import User
-
-
-class TelegramProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    telegram_id = models.CharField(max_length=100)
-    username = models.CharField(max_length=100)
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100, blank=True, null=True)
+    class Meta:
+        ordering = ('-published_date',)
 
     def __str__(self):
-        return self.username
+        return self.title
+
+    def get_absolute_url(self):
+        from django.urls import reverse
+        return reverse('services:post_detail', args=[self.slug])
+
+
+from django.urls import reverse
+
+
+class Tag(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    slug = models.SlugField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('post_list_by_tag', args=[self.slug])

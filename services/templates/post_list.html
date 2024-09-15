@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block content %}
+<div class="container mx-auto py-6 px-4">
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-4xl font-bold">Новости</h1>
+        <form method="get" class="form-control">
+            <div class="input-group">
+                <input type="text" name="q" placeholder="Поиск..." value="{{ query }}" class="input input-bordered" />
+                <button type="submit" class="btn btn-square btn-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 6H21M8 12H21M8 18H21M3 6H3.01M3 12H3.01M3 18H3.01" />
+                    </svg>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for post in posts %}
+        <div class="card bg-base-100 shadow-xl">
+            {% if post.image %}
+            <figure><img src="{{ post.image.url }}" alt="{{ post.title }}" /></figure>
+            {% endif %}
+            <div class="card-body">
+                <h2 class="card-title">
+                    <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+                </h2>
+                <p class="text-gray-500 text-sm">Опубликовано {{ post.published_date|date:"d M 20y" }}</p>
+                <p class="mt-2">{{ post.content|strip_html|truncatewords:10 }}</p>
+                <div class="card-actions justify-end">
+                    <a href="{{ post.get_absolute_url }}" class="btn btn-primary">Читать далее</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Пагинация -->
+    <div class="mt-8">
+        <div class="btn-group">
+            {% if posts.has_previous %}
+            <a href="?{% if query %}q={{ query }}&{% endif %}page={{ posts.previous_page_number }}" class="btn">«</a>
+            {% else %}
+            <button class="btn" disabled>«</button>
+            {% endif %}
+            <button class="btn">Страница {{ posts.number }} из {{ posts.paginator.num_pages }}</button>
+            {% if posts.has_next %}
+            <a href="?{% if query %}q={{ query }}&{% endif %}page={{ posts.next_page_number }}" class="btn">»</a>
+            {% else %}
+            <button class="btn" disabled>»</button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

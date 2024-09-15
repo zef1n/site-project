@@ -1,3 +1,5 @@
+from django.utils import timezone
+
 from .forms import OrderForm
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Service
@@ -37,24 +39,33 @@ def cart_detail(request):
     if request.method == 'POST':
         form = OrderForm(request.POST)
         if form.is_valid():
-            # Обработка каждого товара в корзине
+            order_details = []  # Список для хранения информации о каждом товаре
+
+            # Сохраняем данные пользователя и заказа
+            order = form.save(commit=False)
+
+            # Собираем данные обо всех товарах в корзине
             for item in cart:
-                order = form.save(commit=False)
-                order.service = item['service']  # Привязываем услугу из корзины к заказу
+                order.service = item['service']
                 order.save()
 
-                # Формирование сообщения для Telegram
-                message = f"🛒 <b>Новый заказ</b>\n\n" \
-                          f"👤 Имя: {order.customer_name}\n" \
-                          f"📧 Email: {order.customer_email}\n" \
-                          f"🔗 Telegram: @{order.telegram_username}\n" \
-                          f"🛠 Услуга: {item['service'].title}\n" \
-                          f"💰 Стоимость: {item['total_price']} руб.\n" \
-                          f"📅 Дата: {order.created_at.strftime('%Y-%m-%d %H:%M')}\n\n" \
-                          f"📜 Дополнительно: {order.additional_info}"
+                order_details.append(
+                    f"🛠 Услуга: {item['service'].title} | Количество: {item['quantity']} | Сумма: {item['total_price']} руб."
+                )
 
-                # Отправка сообщения в Telegram
-                send_telegram_message(message)
+            # Формируем итоговое сообщение для Telegram
+            message = (
+                    f"🛒 <b>Новый заказ</b>\n\n"
+                    f"👤 Имя: {order.customer_name}\n"
+                    f"📧 Email: {order.customer_email}\n"
+                    f"📞 Телефон: {order.phone_number}\n"
+                    f"💬 Предпочитаемая соцсеть: {order.get_preferred_network_display()}\n"
+                    f"📅 Дата: {order.created_at.strftime('%Y-%m-%d %H:%M')}\n\n"
+                    f"📜 Товары:\n" + "\n".join(order_details) + "\n\n"
+                                                                f"📜 Дополнительно: {order.additional_info if order.additional_info else 'Нет'}"
+            )
+
+            send_telegram_message(message)  # Отправка сообщения в Telegram
 
             cart.clear()  # Очищаем корзину после оформления заказа
             return redirect('services:order_success')
@@ -89,3 +100,43 @@ def send_telegram_message(message: str):
 # Вызов асинхронной функции
 def send_telegram_message_sync(message: str):
     asyncio.run(send_telegram_message(message))
+
+
+from django.shortcuts import render, get_object_or_404
+from .models import Post
+
+from django.shortcuts import render, get_object_or_404
+from .models import Post
+from django.utils import timezone
+from taggit.models import Tag
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
+
+def post_list(request, tag_slug=None):
+    object_list = Post.objects.filter(published_date__lte=timezone.now())
+    tag = None
+    query = request.GET.get('q')
+
+    if tag_slug:
+        tag = get_object_or_404(Tag, slug=tag_slug)
+        object_list = object_list.filter(tags__in=[tag])
+
+    if query:
+        object_list = object_list.filter(content__icontains=query) | object_list.filter(title__icontains=query)
+
+    paginator = Paginator(object_list, 6)  # 6 постов на страницу
+    page = request.GET.get('page')
+
+    try:
+        posts = paginator.page(page)
+    except PageNotAnInteger:
+        posts = paginator.page(1)
+    except EmptyPage:
+        posts = paginator.page(paginator.num_pages)
+
+    return render(request, 'post_list.html', {'posts': posts, 'tag': tag, 'query': query})
+
+
+def post_detail(request, slug):
+    post = get_object_or_404(Post, slug=slug)
+    return render(request, 'post_detail.html', {'post': post})

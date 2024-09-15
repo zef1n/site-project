@@ -38,30 +38,49 @@
 
     <form method="post" class="space-y-4">
         {% csrf_token %}
+
+        <!-- Поле для ФИО -->
         <div class="form-control">
             <label class="label">
                 <span class="label-text">ФИО</span>
             </label>
             {{ form.customer_name }}
         </div>
+
+        <!-- Поле для Email -->
         <div class="form-control">
             <label class="label">
                 <span class="label-text">Email</span>
             </label>
             {{ form.customer_email }}
         </div>
+
+        <!-- Поле для номера телефона -->
         <div class="form-control">
             <label class="label">
-                <span class="label-text">Ник telegram</span>
+                <span class="label-text">Номер телефона</span>
             </label>
-            {{ form.telegram_username }}
+            <input id="phone-number" type="tel" name="phone_number" class="input input-bordered w-full" placeholder="+7 (___) ___-__-__">
+            <input type="hidden" id="formatted-phone-number" name="formatted_phone_number">
         </div>
+
+        <!-- Поле для выбора соцсети -->
+        <div class="form-control">
+            <label class="label">
+                <span class="label-text">Предпочитаемая соцсеть для связи</span>
+            </label>
+            {{ form.preferred_network }}
+        </div>
+
+        <!-- Поле для дополнительной информации -->
         <div class="form-control">
             <label class="label">
                 <span class="label-text">Дополнительная информация</span>
             </label>
             {{ form.additional_info }}
         </div>
+
+        <!-- Кнопка отправки формы -->
         <button type="submit" class="btn btn-primary w-full mt-4">Оформить заказ</button>
     </form>
 
@@ -69,4 +88,33 @@
     <p>Ваша корзина пуста.</p>
     {% endif %}
 </div>
+
+<!-- Скрипт для форматирования телефона -->
+<script>
+    const phoneInput = document.querySelector("#phone-number");
+    const iti = window.intlTelInput(phoneInput, {
+        initialCountry: "ru",  // Начальная страна - Россия
+        preferredCountries: ['ru'],  // Предпочтительная страна Россия
+        separateDialCode: true,  // Отдельный код страны (+7)
+        nationalMode: false,  // Отображение кода страны
+        utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js"
+    });
+
+    phoneInput.addEventListener("input", function () {
+        let phoneNumber = phoneInput.value;
+
+        // Автоматическая замена 8 на +7
+        if (phoneNumber.startsWith("8")) {
+            phoneInput.value = phoneNumber.replace(/^8/, "+7");
+        }
+    });
+
+    // При отправке формы передаем форматированный номер в скрытое поле
+    const form = document.querySelector("form");
+    form.addEventListener("submit", function () {
+        const formattedPhoneNumber = iti.getNumber();
+        document.querySelector("#formatted-phone-number").value = formattedPhoneNumber;
+    });
+</script>
+
 {% endblock %}
