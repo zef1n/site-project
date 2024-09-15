@@ -24,8 +24,6 @@ SECRET_KEY = 'django-insecure-%4(60b8&dw4+zd_fd6a_ci72!3*85x2jx-#2)2o%-#wz+@)7##
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -113,13 +111,16 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'ru-ru'
 
-TIME_ZONE = 'UTC'
+ALLOWED_HOSTS = ["*", "olimp-team-olimp-web-7d5b.twc1.net", "olimp-olympiad.ru"]
 
+# Интернационализация
+LANGUAGE_CODE = 'ru-RU'
+TIME_ZONE = 'Asia/Yekaterinburg'
 USE_I18N = True
-
+USE_L10N = True
 USE_TZ = True
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
