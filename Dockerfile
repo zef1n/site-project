@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
-
+ENV API_TOKEN='7442945233:AAFcqTkImSRADz5IoZdK9zurLbyATDGopP0'
 # 3. Устанавливаем зависимости
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
