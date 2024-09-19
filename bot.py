@@ -1,13 +1,16 @@
 import logging
+import os
 from aiogram import Bot, Dispatcher, types
 from aiogram.types import Message
 from aiogram import Router
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram import F
-from aiogram.utils.token import TokenValidationError
 
-# Токен вашего бота, полученный от @BotFather
-API_TOKEN = '7442945233:AAFcqTkImSRADz5IoZdK9zurLbyATDGopP0'
+# Получаем токен из переменной окружения
+API_TOKEN = os.getenv('API_TOKEN')
+
+if not API_TOKEN:
+    raise ValueError("Отсутствует переменная окружения API_TOKEN")
 
 # Настройка логирования
 logging.basicConfig(level=logging.INFO)

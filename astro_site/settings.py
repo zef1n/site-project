@@ -143,3 +143,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Корзина
 CART_SESSION_ID = 'cart'
 
+
