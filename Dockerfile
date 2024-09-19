@@ -1,20 +1,19 @@
-# Используем официальный образ Python в качестве базового
+# 1. Используем базовый образ Python
 FROM python:3.10-slim
 
-# Устанавливаем рабочую директорию внутри контейнера
+# 2. Устанавливаем обновления системы
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# 3. Устанавливаем зависимости
+#COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 4. Копируем файлы бота в контейнер
+COPY . /app
 WORKDIR /app
 
-# Копируем файлы зависимостей в контейнер
-COPY requirements.txt .
-
-# Обновляем pip и устанавливаем зависимости
-RUN pip install --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
-
-# Копируем весь остальной код в контейнер
-COPY ../.. .
-
-
-
-# Указываем команду для запуска бота
+# 5. Указываем команду для запуска бота
 CMD ["python", "bot.py"]
